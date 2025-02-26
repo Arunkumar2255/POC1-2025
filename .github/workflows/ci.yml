@@ -24,6 +24,15 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
+      - name: Install Sonar Scanner
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          curl -Lo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip
+          sudo mv sonar-scanner-*/ /opt/sonar-scanner
+          echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
+
       - name: SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -60,3 +69,4 @@ jobs:
           docker tag $DOCKER_IMAGE:${{ github.sha }} $NEXUS_REPO/$DOCKER_IMAGE:latest
           docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ github.sha }}
           docker push $NEXUS_REPO/$DOCKER_IMAGE:latest
+
