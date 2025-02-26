@@ -4,7 +4,12 @@ on:
   push:
     branches:
       - main
-
+      
+permissions:
+  contents: read
+  issues: write
+  security-events: write
+  
 env:
   DOCKER_IMAGE: "arunk369/nodejs-app"
   NEXUS_REPO: "http://3.144.225.80:5000"
