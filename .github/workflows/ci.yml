@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - main
-      
+
 permissions:
   contents: write
   issues: write
   actions: write
   security-events: write
-  
+
 env:
   DOCKER_IMAGE: "arunk369/nodejs-app"
   NEXUS_REPO: "http://3.144.225.80:5000"
@@ -62,7 +62,9 @@ jobs:
       - name: Start Node.js App
         run: |
           docker run -d --name node-app -p 3000:3000 arunk369/nodejs-app
-          sleep 10  # Wait for the app to start
+          for i in {1..10}; do
+            curl -I http://localhost:3000 && break || sleep 5;
+          done
 
       - name: Check Node.js App
         run: |
@@ -84,6 +86,12 @@ jobs:
           artifact_name: zap-scan-report-${{ github.run_id }}
           format: md,html,json
 
+      - name: Upload ZAP Scan Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-scan-report-${{ github.run_id }}
+          path: report.*
+
       - name: Push Docker Image to Nexus
         env:
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
@@ -94,5 +102,6 @@ jobs:
           docker tag $DOCKER_IMAGE:${{ github.sha }} $NEXUS_REPO/$DOCKER_IMAGE:latest
           docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ github.sha }}
           docker push $NEXUS_REPO/$DOCKER_IMAGE:latest
+
 
 
