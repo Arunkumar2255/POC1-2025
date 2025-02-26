@@ -13,7 +13,7 @@ permissions:
   security-events: write
   
 env:
-  DOCKER_IMAGE: "arunk369/nodejs-app"
+  DOCKER_IMAGE: "nodejs-app"
   NEXUS_REPO: "http://18.118.114.255:5000"
   TRIVY_IMAGE: "aquasec/trivy"
   SONAR_HOST_URL: "http://18.118.114.255:9000"
