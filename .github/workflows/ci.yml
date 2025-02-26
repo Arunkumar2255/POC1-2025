@@ -64,7 +64,7 @@ jobs:
 
       - name: Start Node.js App
         run: |
-          docker run -d --name node-app -p 3000:3000 arunk369/nodejs-app
+          docker run -d --name node-app -p 3000:3000 $DOCKER_IMAGE:latest
           sleep 10  # Wait for the app to start
 
       - name: Check Node.js App
