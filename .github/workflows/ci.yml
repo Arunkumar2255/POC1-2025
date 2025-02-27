@@ -13,7 +13,7 @@ permissions:
   
 env:
   DOCKER_IMAGE: "arunk369/nodejs-app"
-  NEXUS_REPO: "http://3.145.126.80:5000"
+  NEXUS_REPO: 3.145.126.80:5000
   TRIVY_IMAGE: "aquasec/trivy"
   SONAR_HOST_URL: "http://3.145.126.80:9000"
   SONAR_PROJECT_KEY: "My-App"
