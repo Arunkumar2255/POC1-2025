@@ -1,4 +1,3 @@
-
 name: Node.js CI/CD with ArgoCD
 
 on:
@@ -13,13 +12,11 @@ permissions:
   security-events: write
   
 env:
-  DOCKER_IMAGE: "nodejs-app"
-  NEXUS_REPO: "http://18.118.114.255:5000"
+  DOCKER_IMAGE: "arunk369/nodejs-app"
+  NEXUS_REPO: "http://3.145.126.80:5000"
   TRIVY_IMAGE: "aquasec/trivy"
-  SONAR_HOST_URL: "http://18.118.114.255:9000"
+  SONAR_HOST_URL: "http://3.145.126.80:9000"
   SONAR_PROJECT_KEY: "My-App"
-  ACTIONS_STEP_DEBUG: true
-  ACTIONS_RUNNER_DEBUG: true
 
 jobs:
   ci:
@@ -64,7 +61,7 @@ jobs:
 
       - name: Start Node.js App
         run: |
-          docker run -d --name node-app -p 3000:3000 $DOCKER_IMAGE:latest
+          docker run -d --name node-app -p 3000:3000 arunk369/nodejs-app
           sleep 10  # Wait for the app to start
 
       - name: Check Node.js App
@@ -76,7 +73,7 @@ jobs:
           sudo chmod -R 777 /home/runner/work/POC1-2025/POC1-2025
 
       - name: Run ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@v0.10.0
         with:
           token: ${{ secrets.MY_GITHUB_TOKEN }}
           target: http://localhost:3000
@@ -91,7 +88,7 @@ jobs:
       - name: Allow Insecure Nexus Registry
         run: |
          sudo mkdir -p /etc/docker
-         echo '{ "insecure-registries": ["http://18.118.114.255:5000"] }' | sudo tee /etc/docker/daemon.json
+         echo '{ "insecure-registries": ["http://3.145.126.80:5000"] }' | sudo tee /etc/docker/daemon.json
          sudo systemctl restart docker
 
       - name: Push Docker Image to Nexus
@@ -100,10 +97,12 @@ jobs:
           NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
         run: |
           echo "$NEXUS_PASS" | docker login $NEXUS_REPO -u "$NEXUS_USER" --password-stdin
-          docker tag $DOCKER_IMAGE $NEXUS_REPO/$DOCKER_IMAGE
-          #docker tag $DOCKER_IMAGE:${{ github.sha }} $NEXUS_REPO/$DOCKER_IMAGE:latest
-          docker push $NEXUS_REPO/$DOCKER_IMAGE
-          #docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ github.sha }}
+          docker tag $DOCKER_IMAGE:${{ github.sha }} $NEXUS_REPO/$DOCKER_IMAGE:${{ github.sha }}
+          docker tag $DOCKER_IMAGE:${{ github.sha }} $NEXUS_REPO/$DOCKER_IMAGE:latest
+          docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ github.sha }}
+          docker push $NEXUS_REPO/$DOCKER_IMAGE:latest
+
+
 
 
 
