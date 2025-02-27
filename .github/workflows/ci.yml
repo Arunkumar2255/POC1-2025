@@ -73,7 +73,7 @@ jobs:
           sudo chmod -R 777 /home/runner/work/POC1-2025/POC1-2025
 
       - name: Run ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.10.0
+        uses: zaproxy/action-baseline@v0.14.0
         with:
           token: ${{ secrets.MY_GITHUB_TOKEN }}
           target: http://localhost:3000
