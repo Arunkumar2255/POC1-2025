@@ -13,9 +13,9 @@ permissions:
   
 env:
   DOCKER_IMAGE: "arunk369/nodejs-app"
-  NEXUS_REPO: 18.224.24.213:5000
+  NEXUS_REPO: 18.117.128.173:5000
   TRIVY_IMAGE: "aquasec/trivy"
-  SONAR_HOST_URL: "http://18.224.24.213:9000"
+  SONAR_HOST_URL: "http://18.117.128.173:9000"
   SONAR_PROJECT_KEY: "My-App"
 
 jobs:
@@ -88,7 +88,7 @@ jobs:
       - name: Allow Insecure Nexus Registry
         run: |
          sudo mkdir -p /etc/docker
-         echo '{ "insecure-registries": ["http://18.224.24.213:5000"] }' | sudo tee /etc/docker/daemon.json
+         echo '{ "insecure-registries": ["http://18.117.128.173:5000"] }' | sudo tee /etc/docker/daemon.json
          sudo systemctl restart docker
 
       - name: Push Docker Image to Nexus
