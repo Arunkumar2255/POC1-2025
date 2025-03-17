@@ -13,7 +13,7 @@ permissions:
   
 env:
   DOCKER_IMAGE: "arunk369/nodejs-app"
-  NEXUS_REPO: 18.191.19.141:5000
+  NEXUS_REPO: "18.191.19.141:5000"
   TRIVY_IMAGE: "aquasec/trivy"
   SONAR_HOST_URL: "http://18.191.19.141:9000"
   SONAR_PROJECT_KEY: "My-App"
@@ -29,6 +29,9 @@ jobs:
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
+
+      - name: Set Build Number
+        run: echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Install Sonar Scanner
         run: |
@@ -49,19 +52,19 @@ jobs:
             -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.login=$SONAR_TOKEN
 
-      - name: Build Docker Image
+      - name: Build Docker Image with Build Number
         run: |
-          docker build --no-cache -t $DOCKER_IMAGE:${{ github.sha }} .
-          docker tag $DOCKER_IMAGE:${{ github.sha }} $DOCKER_IMAGE:latest
+          docker build --no-cache -t $DOCKER_IMAGE:${{ env.BUILD_NUMBER }} .
+          docker tag $DOCKER_IMAGE:${{ env.BUILD_NUMBER }} $NEXUS_REPO/$DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
 
       - name: Trivy Vulnerability Scan
         run: |
           docker pull $TRIVY_IMAGE
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image $DOCKER_IMAGE:${{ github.sha }}
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock $TRIVY_IMAGE image $DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
 
       - name: Start Node.js App
         run: |
-          docker run -d --name node-app -p 3000:3000 arunk369/nodejs-app
+          docker run -d --name node-app -p 3000:3000 $DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
           sleep 10  # Wait for the app to start
 
       - name: Check Node.js App
@@ -82,7 +85,6 @@ jobs:
           docker_name: ghcr.io/zaproxy/zaproxy:stable
           issue_title: ZAP Scan Baseline Report
           allow_issue_writing: true
-          #artifact_name: Zapscan
           format: md,html,json
           
       - name: Allow Insecure Nexus Registry
@@ -91,16 +93,13 @@ jobs:
          echo '{ "insecure-registries": ["http://18.191.19.141:5000"] }' | sudo tee /etc/docker/daemon.json
          sudo systemctl restart docker
 
-      - name: Push Docker Image to Nexus
+      - name: Push Docker Image to Nexus with Build Number
         env:
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
           NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
         run: |
           echo "$NEXUS_PASS" | docker login $NEXUS_REPO -u "$NEXUS_USER" --password-stdin
-          docker tag $DOCKER_IMAGE:${{ github.sha }} $NEXUS_REPO/$DOCKER_IMAGE:${{ github.sha }}
-          docker tag $DOCKER_IMAGE:${{ github.sha }} $NEXUS_REPO/$DOCKER_IMAGE:latest
-          docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ github.sha }}
-          docker push $NEXUS_REPO/$DOCKER_IMAGE:latest
+          docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
 
 
 
