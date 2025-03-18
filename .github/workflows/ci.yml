@@ -110,6 +110,12 @@ jobs:
           git config user.name "github-actions"
           git config user.email "<>"
           git add ./nodejs-application/values.yaml
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+          echo "No changes to commit. Exiting."
+          exit 0  # Exit gracefully if no changes
+          fi
           git commit -m "Update image tag to ${BUILD_NUMBER}"
           git push 
         env:
