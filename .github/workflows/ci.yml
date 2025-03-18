@@ -97,6 +97,16 @@ jobs:
         run: |
           sed -i "s/tag: \"latest\"/tag: \"${{ env.BUILD_NUMBER }}\"/" ./nodejs-application/values.yaml
 
+      - name: Commit and Push changes to Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "<>"
+          git add ./nodejs-application/values.yaml
+          git commit -m "Update image tag to ${BUILD_NUMBER}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+
 
       - name: Push Docker Image to Nexus with Build Number
         env:
