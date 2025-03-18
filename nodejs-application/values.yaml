@@ -8,7 +8,7 @@ image:
   repository: arunk369/nodejs-app
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "42"
 
 imagePullSecrets: []
 nameOverride: ""
