@@ -93,6 +93,14 @@ jobs:
          echo '{ "insecure-registries": ["http://18.118.167.64:5000"] }' | sudo tee /etc/docker/daemon.json
          sudo systemctl restart docker
 
+      - name: Push Docker Image to Nexus with Build Number
+        env:
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
+        run: |
+          echo "$NEXUS_PASS" | docker login $NEXUS_REPO -u "$NEXUS_USER" --password-stdin
+          docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
+
       - name: Update Helm values.yaml with Build Number 
         run: |
           sed -i "s/tag: \"latest\"/tag: \"${{ env.BUILD_NUMBER }}\"/" ./nodejs-application/values.yaml
@@ -103,20 +111,9 @@ jobs:
           git config user.email "<>"
           git add ./nodejs-application/values.yaml
           git commit -m "Update image tag to ${BUILD_NUMBER}"
-          git push origin main
+          git push 
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-
-
-      - name: Push Docker Image to Nexus with Build Number
-        env:
-          NEXUS_USER: ${{ secrets.NEXUS_USER }}
-          NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
-        run: |
-          echo "$NEXUS_PASS" | docker login $NEXUS_REPO -u "$NEXUS_USER" --password-stdin
-          docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
-
-
 
 
 
