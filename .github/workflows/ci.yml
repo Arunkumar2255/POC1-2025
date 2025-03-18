@@ -95,7 +95,7 @@ jobs:
 
       - name: Update Helm values.yaml with Build Number 
         run: |
-          sed -i "s/tag: \"latest\"/tag: \"${{ env.BUILD_NUMBER }}\"/" ./path/to/values.yaml
+          sed -i "s/tag: \"latest\"/tag: \"${{ env.BUILD_NUMBER }}\"/" ./nodejs-application/values.yaml
 
 
       - name: Push Docker Image to Nexus with Build Number
