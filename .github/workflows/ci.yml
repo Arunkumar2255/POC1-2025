@@ -101,30 +101,23 @@ jobs:
           echo "$NEXUS_PASS" | docker login $NEXUS_REPO -u "$NEXUS_USER" --password-stdin
           docker push $NEXUS_REPO/$DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
 
-      - name: Update Helm values.yaml with Build Number and Commit Changes
+      - name: Update Helm values.yaml with Build Number 
         run: |
-          # Pull the latest changes from the remote repository
-          git pull origin main --rebase
-
-          # Update the Helm values.yaml file with the new build number
           sed -i "s/tag: \".*\"/tag: \"${{ env.BUILD_NUMBER }}\"/" ./nodejs-application/values.yaml
 
-          # Stage the changes
-          git add ./nodejs-application/values.yaml
-
-          # Check if there are meaningful changes to commit
-          if git diff --staged --quiet; then
-            echo "No changes to commit. Exiting."
-            exit 0  # Exit gracefully if no changes
-          fi
-
-          # Configure git user
+      - name: Commit and Push changes to Git
+        run: |
           git config user.name "github-actions"
           git config user.email "<>"
+          git add ./nodejs-application/values.yaml
 
-          # Commit and push the changes
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+          echo "No changes to commit. Exiting."
+          exit 0  # Exit gracefully if no changes
+          fi
           git commit -m "Update image tag to ${{ env.BUILD_NUMBER }}"
-          git push origin main
+          git push 
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
