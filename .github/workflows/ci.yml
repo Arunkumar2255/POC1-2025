@@ -103,7 +103,7 @@ jobs:
 
       - name: Update Helm values.yaml with Build Number 
         run: |
-          sed -i "s/tag: \"latest\"/tag: \"${{ env.BUILD_NUMBER }}\"/" ./nodejs-application/values.yaml
+          sed -i "s/tag: \".*\"/tag: \"${{ env.BUILD_NUMBER }}\"/" ./nodejs-application/values.yaml
 
       - name: Commit and Push changes to Git
         run: |
