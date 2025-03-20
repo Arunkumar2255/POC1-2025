@@ -64,7 +64,7 @@ jobs:
 
       - name: Start Node.js App
         run: |
-          docker run -d --name node-app -p 3000:3000 $DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
+          docker run -d --name node-app -p 8081:8081 $DOCKER_IMAGE:${{ env.BUILD_NUMBER }}
           sleep 10  # Wait for the app to start
 
       - name: Check Node.js App
