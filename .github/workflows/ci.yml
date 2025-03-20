@@ -69,7 +69,7 @@ jobs:
 
       - name: Check Node.js App
         run: |
-          curl -I http://localhost:3000 || exit 1
+          curl -I http://localhost:8081 || exit 1
 
       - name: Set Permissions
         run: |
